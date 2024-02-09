@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './App.css';
 import BookCard from './BookCard';
 
@@ -14,18 +14,16 @@ interface BookData {
 }
 
 function App() {
-  const [name, setName] = useState("barbie");
   const [books, setBooks] = useState<BookData['items']>([]);
-  const [img, setImg] = useState("");
+  const inputName = useRef<HTMLInputElement>(null);
 
   const getBookDetails = async () => {
     try {
-      const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${name}`);
+      const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${inputName.current?.value}`);
       const data: BookData = await response.json();
       setBooks(data.items || []);
       if (data.items && data.items.length > 0) {
         console.log(data.items[0].volumeInfo.title);
-        setImg(data.items[0].volumeInfo.imageLinks.thumbnail);
       }
     } catch (error) {
       console.error('Error fetching book details:', error);
@@ -38,11 +36,12 @@ function App() {
 
   return (
     <>
-      <div className='flex flex-col items-center  text-white '>
+      <div className='flex flex-col items-center text-white'>
         <div>
           <input
             className='bg-white border border-black text-black p-4 m-7 w-96 rounded-3xl text-2xl'
             type="text"
+            ref={inputName}
             placeholder='Search for the book....'
           />
           <button
